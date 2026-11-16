@@ -12,5 +12,5 @@ labels:
       environment: stg
 
 images:
-  - name: asia-northeast3-docker.pkg.dev/ssu-agent-vertex-509708/suntaechung-repo/todo-backendLprod
+  - name: asia-northeast3-docker.pkg.dev/ssu-agent-vertex-509708/suntaechung-repo/todo-backend:prod
     newTag: prod
