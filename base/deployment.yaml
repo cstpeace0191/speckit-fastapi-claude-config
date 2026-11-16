@@ -29,7 +29,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: backend
-          image: asia-northeast3-docker.pkg.dev/ssu-agent-vertex-509708/suntaechung-repo/todo-backend
+          image: asia-northeast3-docker.pkg.dev/ssu-agent-vertex-509708/suntaechung-repo/todo-backend:prod
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
