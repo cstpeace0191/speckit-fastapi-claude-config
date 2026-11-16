@@ -1,0 +1,79 @@
+# todo-backend: FastAPI + 번들된 React 프론트엔드 (포트 3000)
+# 이미지 태그는 overlays/<env>/kustomization.yaml 의 images[].newTag 로 정한다.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: todo-backend
+  labels:
+    app.kubernetes.io/component: backend
+spec:
+  # SQLite는 파드마다 파일이 따로 생기므로 1개로 유지한다.
+  # 여러 개로 늘리려면 MySQL(helm/todo-app의 mysql)을 붙이고 MYSQL_HOST 등을 설정할 것.
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: backend
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/component: backend
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: backend
+          image: asia-northeast3-docker.pkg.dev/ssu-agent-vertex-509708/suntaechung-repo/todo-backend
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 3000
+              protocol: TCP
+          env:
+            # MYSQL_HOST가 없으면 앱은 SQLite를 사용한다 (backend/src/persistence/__init__.py)
+            - name: SQLITE_DB_LOCATION
+              value: /data/todo.db
+          # /api/greeting은 DB를 쓰지 않으므로 헬스 체크용으로 사용
+          readinessProbe:
+            httpGet:
+              path: /api/greeting
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 3
+          livenessProbe:
+            httpGet:
+              path: /api/greeting
+              port: http
+            initialDelaySeconds: 20
+            periodSeconds: 20
+            timeoutSeconds: 3
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              memory: 512Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          volumeMounts:
+            - name: data
+              mountPath: /data
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        # 학습용: 파드가 재시작되면 데이터가 사라진다. 유지하려면 PVC 또는 MySQL로 교체.
+        - name: data
+          emptyDir: {}
+        - name: tmp
+          emptyDir: {}

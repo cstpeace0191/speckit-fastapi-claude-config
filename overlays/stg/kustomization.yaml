@@ -1,0 +1,16 @@
+# stg 환경 — dev에서 검증한 태그를 수동 승격 (Actions → Build and Promote → Run workflow, target_env=stg)
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: todo-stg
+
+resources:
+  - ../../base
+
+labels:
+  - pairs:
+      environment: stg
+
+images:
+  - name: asia-northeast3-docker.pkg.dev/ssu-agent-vertex-509708/suntaechung-repo/todo-backend
+    newTag: prod

@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: todo-backend
+  labels:
+    app.kubernetes.io/component: backend
+spec:
+  # 기본은 클러스터 내부 전용. 외부 공개는 overlays/prod 에서 LoadBalancer로 바꾼다.
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/component: backend
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+      protocol: TCP

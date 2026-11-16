@@ -1,0 +1,26 @@
+# prod 환경 — stg에서 검증한 태그를 수동 승격 (target_env=prod). PR 리뷰·머지 = 운영 배포 승인.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: todo-prod
+
+resources:
+  - ../../base
+
+labels:
+  - pairs:
+      environment: prod
+
+images:
+  - name: asia-northeast3-docker.pkg.dev/ssu-agent-vertex-509708/suntaechung-repo/todo-backend
+    newTag: prod
+
+patches:
+  # 운영 환경만 외부 공개: GCP 외부 네트워크 로드밸런서(공인 IP) 생성
+  - target:
+      kind: Service
+      name: todo-backend
+    patch: |-
+      - op: replace
+        path: /spec/type
+        value: LoadBalancer
