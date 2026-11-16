@@ -12,6 +12,6 @@ labels:
       environment: dev
 
 images:
-  - name: asia-northeast3-docker.pkg.dev/ssu-agent-vertex-509708/suntaechung-repo/todo-backend
+  - name: asia-northeast3-docker.pkg.dev/ssu-agent-vertex-509708/suntaechung-repo/todo-backend:prod
     # 초기값 'prod'는 기존 deploy.yml이 올린 태그. 첫 승격 PR부터 커밋 SHA로 바뀐다.
     newTag: prod
